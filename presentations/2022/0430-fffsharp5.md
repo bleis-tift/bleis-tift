@@ -212,7 +212,7 @@ printfn "%A" ("hoge" + 42)
 
 ## スライド配布
 * プレゼンツール内でリンクが使える
-* [配布資料](https://github.com/bleis-tift/presentation/gh-pages/2022/04-30-fffsharp5)
+* [配布資料](https://bleis-tift.github.io/bleis-tift/presentations/2022-0430-fffsharp5/)
    * プレゼン中はこのリンクを踏むとツール内で開く
 
 ---
