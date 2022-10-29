@@ -1,0 +1,1170 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+
+  <title>Reveal JS presentation</title>
+
+  <meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+  <meta name="author" content="Hakim El Hattab">
+
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="libs/reveal.js/4.3.1/reset.css">
+  <link rel="stylesheet" href="libs/reveal.js/4.3.1/reveal.css">
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
+  <!-- highlight Theme -->
+  
+  <link rel="stylesheet" href="libs/highlight.js/11.3.1/styles/monokai.min.css">
+  
+	
+		
+	<link rel="stylesheet" href="libs/reveal.js/4.3.1/plugin/chalkboard/style.css">
+	
+	
+	
+  <link rel="stylesheet" href="libs/reveal.js/4.3.1/plugin/customcontrols/style.css">
+  
+	
+
+
+
+  <!-- Revealjs Theme -->
+  
+  <link rel="stylesheet" href="libs/reveal.js/4.3.1/theme/black.css" id="theme">
+  
+  
+
+  <link rel="stylesheet" href="libs/styles/tasklist.css">
+	<link rel="stylesheet" href="libs/styles/iota.css">
+	<link rel="stylesheet" href="libs/styles/layout.css">
+
+
+  <!-- Revealjs Theme -->
+  
+
+   <!-- css list -->
+	
+
+   
+
+</head>
+
+<body>
+
+   
+
+  <div class="reveal">
+
+    <!-- Any section element inside of this container is displayed as a slide -->
+    <div class="slides">
+
+      
+
+
+    
+        <section >
+            
+            <h1>コンピュテーション式一巡り</h1>
+<p>bleis-tift</p>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h2>自己紹介</h2>
+<p><img src="https://raw.githubusercontent.com/bleis-tift/bleis-tift/main/bleis-tift.svg" alt="bleis-tift"></p>
+<ul>
+<li><a href="https://bleis-tift.hatenablog.com">id:bleis-tift</a> / <a href="https://twitter.com/bleis">@bleis</a></li>
+<li>2009年ごろからF#やってる
+<ul>
+<li>F#おじさん</li>
+</ul>
+</li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h2>コンピュテーション式とは</h2>
+<blockquote>
+<p>コンピュテーション式は、その種類に応じて、
+モナド、モノイド、モナド変換子、および
+アプリカティブファンクターを表現する方法と
+考えることができます。</p>
+</blockquote>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h1>日本語でおｋ</h1>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h2><code>let</code> 式を考えてみましょう</h2>
+<pre><code class="language-fsharp">let x = 10
+x * 2
+</code></pre>
+<p>これを、<code>let</code> 構文を使わずに実現しようとすると？</p>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h2>ラムダ式による変数導入</h2>
+<p><code>let</code> は変数の導入なので、ラムダ式で代替可能</p>
+<pre><code class="language-fsharp">// 元のコード
+// let x = 10
+// x * 2
+10
+|&gt; fun x -&gt; x * 2
+</code></pre>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h2>カスタマイズ</h2>
+<pre><code class="language-fsharp">// 元のコード
+// let x = 10
+// x * 2
+X.LetBinding(10, fun x -&gt; x * 2)
+</code></pre>
+<p>このようにできれば、
+元のコードの意味をカスタマイズできる
+→基本的なコンピュテーション式の考え方</p>
+
+            </section>
+    
+
+
+
+    
+    <section>
+        <section >
+            <h2>コンピュテーション式</h2>
+<ul>
+<li>F#の構文をメソッド呼び出しの形に変形</li>
+<li>メソッドの処理で動作をカスタマイズ</li>
+</ul>
+<p>つまり、F#の構文の意味がカスタマイズできる！</p>
+
+            </section>
+        
+            <section >
+                <h2>余談: 他の言語では？</h2>
+<ul>
+<li>Haskellの <code>do</code></li>
+<li>Scalaの <code>for-yield</code></li>
+<li>(C#のクエリ式)</li>
+</ul>
+
+            </section>
+        
+
+    </section>
+    
+
+
+
+    
+        <section >
+            
+            <h2>コンピュテーション式の例</h2>
+<pre><code class="language-fsharp">// コンピュテーション式
+x {
+  let! a = f ()
+  let! b = g ()
+  return a * b
+}
+// 展開結果(例)
+x.Bind(f (), fun a -&gt;
+x.Bind(g (), fun b -&gt;
+  b.Return(a * b)))
+</code></pre>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h2>何もしないコンピュテーション式</h2>
+<pre><code class="language-fsharp">type X () =
+  member _.Bind(x, f) = f x
+  member _.Return(x) = x
+
+let x = X ()
+</code></pre>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h2>何に使えるか</h2>
+<ul>
+<li>ある種の定型処理を、手続き的に書けるよう
+にする
+<ul>
+<li>非決定計算</li>
+<li>非同期計算</li>
+<li><code>option</code> の値を取り出しての計算</li>
+</ul>
+</li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h2>例: <code>option</code> の値を取り出しての計算</h2>
+<pre><code class="language-fsharp">match o1 with
+| Some a -&gt;
+    match o2 with
+    | Some b -&gt;
+        Some (a + b)
+    | None -&gt; None
+| None -&gt; None
+</code></pre>
+<p><code>match</code> のネストが面倒！</p>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h2>書き換えてみる</h2>
+<pre><code class="language-fsharp">type B () =
+  member _.Bind(x, f) =
+    // Option.bind f x でも可
+    match x with
+    | Some a -&gt; f a
+    | None -&gt; None
+  member _.Return(x) = Some x
+let x = B ()
+x {
+  let! a = o1
+  let! b = o2
+  return a + b
+}
+</code></pre>
+
+            </section>
+    
+
+
+
+    
+    <section>
+        <section >
+            <h2>比較</h2>
+<pre><code class="language-fsharp">// オリジナル
+match o1 with
+| Some a -&gt;
+    match o2 with
+    | Some b -&gt;
+        Some (a + b)
+    | None -&gt; None
+| None -&gt; None
+// コンピュテーション式
+b {
+  let! a = o1
+  let! b = o2
+  return a + b
+}
+// de-sugar
+b.Bind(o1, fun a -&gt;
+b.Bind(o2, fun b -&gt;
+  b.Return(a + b)))
+</code></pre>
+
+            </section>
+        
+            <section >
+                <h2>余談: 他の言語との違い</h2>
+<ul>
+<li>コンピュテーション式
+<ul>
+<li>「文脈に無関係なオブジェクト」に定義</li>
+<li>何を使うのかは、使用者が明示的に指定</li>
+</ul>
+</li>
+<li>そのほかの言語
+<ul>
+<li>定義方法は色々</li>
+<li>何を使うのかは、コンパイラが探す</li>
+</ul>
+</li>
+</ul>
+
+            </section>
+        
+
+    </section>
+    
+
+
+
+    
+    <section>
+        <section >
+            <h2><code>Delay</code> 変換</h2>
+<ul>
+<li>ビルダーが <code>Delay</code> メソッドを持っている場合、<br>
+<code>Delay</code> 変換が行われる。</li>
+<li>コンピュテーション式全体を<br>
+<code>b.Delay(fun () -&gt; ...)</code> で囲む</li>
+<li><code>Delay</code> に渡された関数の起動を選択できる</li>
+<li><code>Delay</code> は他の変換で使われることも
+<ul>
+<li>こっちが本命</li>
+</ul>
+</li>
+</ul>
+
+            </section>
+        
+            <section >
+                <h2><code>Delay</code> 変換</h2>
+<pre><code class="language-fsharp">type B () =
+  member _.Delay(f) = f // 関数を実行しない
+  member _.Bind(x, f) = Option.bind f x
+  member _.Return(x) = Some x
+let x = B ()
+x {
+  let! a = o1
+  let! b = o2
+  return a + b
+}
+// こうなる(全体の型は、unitを受け取る関数)
+x.Delay(fun () -&gt;
+  x.Bind(o1, fun a -&gt;
+  x.Bind(o2, fun b -&gt;
+    x.Return(a + b))))
+</code></pre>
+
+            </section>
+        
+
+    </section>
+    
+
+
+
+    
+    <section>
+        <section >
+            <h2><code>Run</code> 変換</h2>
+<ul>
+<li>ビルダーが <code>Run</code> メソッドを持っている場合、<br>
+<code>Run</code> 変換が行われる。</li>
+<li>コンピュテーション式全体を<br>
+<code>b.Run(...)</code> で囲む</li>
+<li><code>Delay</code> よりも外側になるため、<code>Delay</code> 変換で<br>
+関数を起動しなかった場合、それを起動できる</li>
+</ul>
+
+            </section>
+        
+            <section >
+                <h2><code>Run</code> 変換</h2>
+<pre><code class="language-fsharp">type B () =
+  member _.Run(f) = f () // Delayした関数をここで実行
+  member _.Delay(f) = f
+  member _.Bind(x, f) = Option.bind f x
+  member _.Return(x) = Some x
+let x = B ()
+x {
+  let! a = o1
+  let! b = o2
+  return a + b
+}
+// こうなる
+x.Run(
+  x.Delay(fun () -&gt;
+    x.Bind(o1, fun a -&gt;
+    x.Bind(o2, fun b -&gt;
+      x.Return(a + b)))))
+</code></pre>
+
+            </section>
+        
+            <section >
+                <h2><code>Run</code> の応用</h2>
+<pre><code class="language-fsharp">type B (v: 'a) =
+  member _.Run(f) = f () |&gt; Option.defaultValue v
+  member _.Delay(f) = f
+  member _.Bind(x, f) = Option.bind f x
+  member _.Return(x) = Some x
+let x v = B ()
+// o1かo2がNoneの場合、-1
+x -1 {
+  let! a = o1
+  let! b = o2
+  return a + b
+}
+</code></pre>
+
+            </section>
+        
+
+    </section>
+    
+
+
+
+    
+        <section >
+            
+            <h2><code>Zero</code> 変換</h2>
+<ul>
+<li>複数個所で出てくる
+<ul>
+<li><code>else</code> のない <code>if</code> の <code>else</code> 側</li>
+<li>コンピュテーション式ではない式の変換</li>
+<li><code>DefaultValue</code> の付いたビルダーでの <code>do!</code></li>
+</ul>
+</li>
+<li><code>b { () }</code> で出てくる
+<ul>
+<li><code>b.Run(b.Delay(fun () -&gt; b.Zero()    ))</code></li>
+</ul>
+</li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+    <section>
+        <section >
+            <h2><code>While</code> 変換</h2>
+<ul>
+<li><code>while e do ce</code> に対する変換
+<ul>
+<li>要は、<code>while</code> 式に対する変換</li>
+</ul>
+</li>
+<li><code>b.While((fun () -&gt; e),    b.Delay(fun () -&gt; ceの変換結果))</code></li>
+<li><code>Delay</code> が出てくる</li>
+</ul>
+
+            </section>
+        
+            <section >
+                <h2><code>While</code> 変換</h2>
+<pre><code class="language-fsharp">type B () =
+  member _.Run(f) = f ()
+  member _.Delay(f) = f
+  member this.While(cond, body) =
+    if not (cond ()) then None
+    else
+      match body () with
+      | Some _ -&gt; this.While(cond, body)
+      | None -&gt; None
+  member _.Bind(x, f) = Option.bind f x
+  member _.Return(x) = Some x
+  member _.Zero() = None
+let x = B ()
+x {
+  let mutable i = 0
+  while i &lt; 5 do
+    printfn &quot;loop&quot;
+    i &lt;- i + 1
+    return 10
+} |&gt; printfn &quot;%A&quot;
+</code></pre>
+
+            </section>
+        
+            <section >
+                <h2><code>While</code> 変換</h2>
+<ul>
+<li>結果に「あれ？」って思った？</li>
+<li>変換結果を読み解いてみよう</li>
+</ul>
+
+            </section>
+        
+            <section >
+                <h2><code>While</code> 変換</h2>
+<pre><code class="language-fsharp">type B () =
+  member _.Run(f) = f ()
+  member _.Delay(f) = f
+  member this.While(cond, body) =
+    if not (cond ()) then None // 最終的には、ここに来て全体としてNoneが返る
+    else
+      match body () with
+      | Some _ -&gt; this.While(cond, body) // body ()の結果は捨てる
+      | None -&gt; None
+  member _.Bind(x, f) = Option.bind f x
+  member _.Return(x) = Some x
+  member _.Zero() = None
+let x = B ()
+x {
+  let mutable i = 0
+  while i &lt; 5 do
+    printfn &quot;loop&quot;
+    i &lt;- i + 1
+    return 10
+}
+// ざっくりこうなる
+x.Run(x.Delay(fun () -&gt;
+  let mutable i = 0
+  b.While((fun () -&gt; i &lt; 5), b.Delay(fun () -&gt;
+    printfn &quot;loop&quot;
+    i &lt;- i + 1
+    b.Return(10)))))
+</code></pre>
+
+            </section>
+        
+            <section >
+                <h2><code>return</code> で <code>return</code> するには・・・</h2>
+<ul>
+<li>一応できます
+<ul>
+<li>状態を引き回す</li>
+<li>継続を使う</li>
+</ul>
+</li>
+<li>詳しくは後述</li>
+</ul>
+
+            </section>
+        
+
+    </section>
+    
+
+
+
+    
+    <section>
+        <section >
+            <h2><code>Combine</code> 変換</h2>
+<ul>
+<li><code>ce1; ce2</code> に対する変換
+<ul>
+<li>要は、二つの式の連続に対する変換</li>
+</ul>
+</li>
+<li><code>b.Combine(ce1の変換結果,    b.Delay(fun () -&gt; ce2の変換結果))</code></li>
+<li><code>Delay</code> が出てくる</li>
+<li><code>While</code> にはほぼ必須</li>
+</ul>
+
+            </section>
+        
+            <section >
+                <h2><code>While</code> にはほぼ必須？</h2>
+<pre><code class="language-fsharp">x {
+  let mutable i = 0
+  while i &lt; 5 do
+    printfn &quot;loop&quot;
+    i &lt;- i + 1
+    // 気持ち悪いけどいったん目をつぶってください！
+    return -1
+  // Combineがないと、whileの後にコードが書けない
+  return 10
+}
+</code></pre>
+
+            </section>
+        
+            <section >
+                <h2><code>Combine</code> 変換</h2>
+<pre><code class="language-fsharp">type B () =
+  member _.Run(f) = f ()
+  member _.Delay(f) = f
+  member this.While(cond, body) =
+    if not (cond ()) then Some (Unchecked.defaultof&lt;_&gt;)
+    else this.Combine(body (), fun () -&gt; this.While(cond, body))
+  member _.Combine(x, f) =
+    match x with
+    | Some _ -&gt; f ()
+    | None -&gt; None
+  member _.Bind(x, f) = Option.bind f x
+  member _.Return(x) = Some x
+  member _.Zero() = None
+let x = B ()
+x {
+  let mutable i = 0
+  while i &lt; 5 do
+    printfn &quot;loop&quot;
+    i &lt;- i + 1
+    return -1
+  return 10
+} |&gt; printfn &quot;%A&quot;
+</code></pre>
+
+            </section>
+        
+
+    </section>
+    
+
+
+
+    
+    <section>
+        <section >
+            <h2><code>return</code> で <code>return</code> する</h2>
+<pre><code class="language-fsharp">type FlowControl = Break | Continue // 実行を止めるか、続けるか
+type B () =
+  member _.Run(f) = f () |&gt; fst
+  member _.Delay(f) = f
+  member this.While(cond, body) =
+    if not (cond ()) then this.Zero()
+    else this.Combine(body (), fun () -&gt; this.While(cond, body))
+  member _.OldCombine(x, f) =
+    match x with
+    | Some _ -&gt; f ()
+    | None -&gt; None
+  member _.Combine(first, rest) =
+    // xだけではなく、FlowControlも見る
+    // Breakだったら、xがNoneだったとしても続けない
+    // -&gt; returnでreturnできるようになる
+    match first with
+    | x, Break
+    | (Some _ as x), Continue -&gt; (x, Break)
+    | None, Continue -&gt; rest ()
+  member _.Bind(x, f) = (Option.bind (f &gt;&gt; fst) x, Continue)
+  member _.Return(x) = (Some x, Break)
+  member _.Zero() = (None, Continue)
+</code></pre>
+
+            </section>
+        
+            <section >
+                <h2>試してみる</h2>
+<pre><code class="language-fsharp">type FlowControl = Break | Continue
+type B () =
+  member _.Run(f) = f () |&gt; fst
+  member _.Delay(f) = f
+  member this.While(cond, body) =
+    if not (cond ()) then this.Zero()
+    else this.Combine(body (), fun () -&gt; this.While(cond, body))
+  member _.Combine(first, rest) =
+    match first with
+    | x, Break
+    | (Some _ as x), Continue -&gt; (x, Break)
+    | None, Continue -&gt; rest ()
+  member _.Bind(x, f) = (Option.bind (f &gt;&gt; fst) x, Continue)
+  member _.Return(x) = (Some x, Break)
+  member _.Zero() = (None, Continue)
+let x = B ()
+x {
+  let mutable i = 0
+  while i &lt; 5 do
+    printfn &quot;loop&quot;
+    i &lt;- i + 1
+    return -1
+  return 10
+} |&gt; printfn &quot;%A&quot;
+</code></pre>
+
+            </section>
+        
+            <section >
+                <h1><code>return</code> で <code>return</code> できた！</h1>
+
+            </section>
+        
+
+    </section>
+    
+
+
+
+    
+        <section >
+            
+            <h2>別の問題</h2>
+<pre><code class="language-fsharp">type FlowControl = Break | Continue
+type B () =
+  member _.Run(f) = f () |&gt; fst
+  member _.Delay(f) = f
+  member this.While(cond, body) =
+    if not (cond ()) then this.Zero()
+    else this.Combine(body (), fun () -&gt; this.While(cond, body))
+  member _.Combine(first, rest) =
+    match first with
+    | x, Break
+    | (Some _ as x), Continue -&gt; (x, Break)
+    | None, Continue -&gt; rest ()
+  member _.Bind(x, f) = (Option.bind (f &gt;&gt; fst) x, Continue)
+  member _.Return(x) = (Some x, Break)
+  member _.Zero() = (None, Continue)
+let x = B ()
+x {
+  let mutable i = 0
+  while i &lt; 5 do
+    printfn &quot;loop&quot;
+    i &lt;- i + 1
+    do! None // return -1をdo!にした
+             // 実際には、unit optionを返す関数が書いてあると思ってください
+  return 10
+} |&gt; printfn &quot;%A&quot;
+</code></pre>
+
+            </section>
+    
+
+
+
+    
+    <section>
+        <section >
+            <h2><code>do!</code> の問題</h2>
+<ul>
+<li><code>do! e</code> は <code>let! () = e in b.Return()</code><br>
+に変換される</li>
+<li>勝手に <code>unit option</code> が出てくる</li>
+<li>困った・・・</li>
+</ul>
+
+            </section>
+        
+            <section >
+                <h2><code>DefaultValue</code> 属性</h2>
+<ul>
+<li><code>Zero</code> に <code>DefaultValue</code> 属性を追加すると<br>
+b.Return()の代わりにb.Zero()を使ってくれる<br>
+ようになった</li>
+<li><code>b.Zero()</code> の型は <code>'a option</code></li>
+<li>勝てる・・・！</li>
+</ul>
+
+            </section>
+        
+            <section >
+                <h2>やってみた</h2>
+<pre><code class="language-fsharp">type FlowControl = Break | Continue
+type B () =
+  member _.Run(f) = f () |&gt; fst
+  member _.Delay(f) = f
+  member this.While(cond, body) =
+    if not (cond ()) then this.Zero()
+    else this.Combine(body (), fun () -&gt; this.While(cond, body))
+  member _.Combine(first, rest) =
+    match first with
+    | x, Break
+    | (Some _ as x), Continue -&gt; (x, Break)
+    | None, Continue -&gt; rest ()
+  member _.Bind(x, f) = (Option.bind (f &gt;&gt; fst) x, Continue)
+  member _.Return(x) = (Some x, Break)
+  [&lt;DefaultValue&gt;]
+  member _.Zero() = (None, Continue)
+let x = B ()
+x {
+  let mutable i = 0
+  while i &lt; 5 do
+    printfn &quot;loop&quot;
+    i &lt;- i + 1
+    do! None
+  return 10
+} |&gt; printfn &quot;%A&quot;
+</code></pre>
+
+            </section>
+        
+            <section >
+                <h1>やったー！</h1>
+
+            </section>
+        
+
+    </section>
+    
+
+
+
+    
+        <section >
+            
+            <h2><code>return</code> で <code>return</code> する(別解)</h2>
+<pre><code class="language-fsharp">type B () =
+  // 初期継続を渡して結果を取り出す
+  member _.Run(f) = f () id
+  member _.Delay(f) = f
+  member this.While(cond, body) =
+    if not (cond ()) then this.Zero()
+    else this.Combine(body (), fun () -&gt; this.While(cond, body))
+  member _.Combine(first, rest) =
+    // firstの処理を捨てて、後続処理を起動
+    fun k -&gt; first (fun _ -&gt; rest () k)
+  member this.Bind(x, f) =
+    match x with Some x -&gt; f x | None -&gt; this.Zero
+  // returnでは、継続を捨てて、xを返す(後続の処理を実行しない)
+  member _.Return(x) = fun _ -&gt; x
+  // zeroでは、継続を起動する(後続の処理を実行する)
+  [&lt;DefaultValue&gt;]
+  member _.Zero() = fun k -&gt; k Unchecked.defaultof&lt;_&gt;
+let x = B ()
+x {
+  let mutable i = 0
+  while i &lt; 5 do
+    printfn &quot;loop&quot;
+    i &lt;- i + 1
+    return -1
+  return 10
+} |&gt; printfn &quot;%A&quot;
+</code></pre>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h2>入りきらなかった話題</h2>
+<ul>
+<li><code>if</code> とか <code>use!</code> とかその他諸々</li>
+<li>カスタムオペレーション</li>
+<li>アプリカティブ
+<ul>
+<li><a href="https://zenn.dev/zecl/articles/a330820e9277cf">zeclさんの記事</a>を読めば完璧ですし・・・</li>
+</ul>
+</li>
+<li>StateMachineによる実装
+<ul>
+<li>まだ完全には理解できてない</li>
+</ul>
+</li>
+</ul>
+
+            </section>
+    
+
+
+
+    
+        <section >
+            
+            <h2>まとめ</h2>
+<ul>
+<li>コンピュテーション式は・・・
+<ul>
+<li>構文の意味をカスタマイズできる</li>
+<li>面倒な処理を「裏側」に隠せる</li>
+</ul>
+</li>
+<li><code>return</code> で <code>return</code> する
+<ul>
+<li>状態を引き回す</li>
+<li><code>Zero</code> には <code>DefaultValue</code> を！</li>
+</ul>
+</li>
+<li>全然一巡りできなかったよ・・・</li>
+</ul>
+
+            </section>
+    
+
+
+    </div>
+
+
+  </div>
+
+  <div class="line top"></div>
+  <div class="line bottom"></div>
+  <div class="line left"></div>
+  <div class="line right"></div>
+
+  <script src="libs/reveal.js/4.3.1/reveal.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/notes/notes.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/markdown/markdown.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/highlight/highlight.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/math/math.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/fullscreen/plugin.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/animate/plugin.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/animate/svg.min.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/anything/plugin.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/anything/Chart.min.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/anything/d3/d3.v3.min.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/anything/d3.patch.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/anything/d3/queue.v1.min.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/anything/d3/topojson.v1.min.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/anything/function-plot.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/customcontrols/plugin.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/embed-tweet/plugin.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/chart/chart.min.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/chart/plugin.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/verticator/verticator.js"></script>
+
+<script src="libs/reveal.js/4.3.1/plugin/zoom/zoom.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/search/search.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/menu/menu.js"></script>
+<script src="libs/reveal.js/4.3.1/plugin/chalkboard/plugin.js"></script>
+
+<!--	<script src="libs/reveal.js/4.3.1/plugin/audio-slideshow/plugin.js"></script>  -->
+<!--	<script src="libs/reveal.js/4.3.1/plugin/audio-slideshow/recorder.js"></script>-->
+<!--	<script src="libs/reveal.js/4.3.1/plugin/audio-slideshow/RecordRTC.js"></script>-->
+
+  
+
+<script>
+  const printPlugins = [
+      RevealNotes,
+      RevealHighlight,
+      RevealMath.MathJax3,
+      RevealAnimate,
+      RevealChalkboard, 
+			RevealEmbedTweet,
+			RevealChart,
+		];
+
+		const plugins =  [...printPlugins,
+		RevealZoom, 
+		RevealSearch, 
+				RevealMarkdown, 
+				RevealMenu, 
+				RevealFullscreen,
+				RevealAnything,
+				//RevealAudioSlideshow,
+				//RevealAudioRecorder,
+				RevealCustomControls, 
+				// poll
+				// question
+				// seminar
+				Verticator 
+				 ]
+
+
+		// Also available as an ES module, see:
+		// https://revealjs.com/initialization/
+		Reveal.initialize({
+			controls: true,
+      controlsTutorial: true,
+      controlsLayout: 'bottom-right',
+      controlsBackArrows: 'faded',
+      progress: true,
+      slideNumber: false,
+      //#showSlideNumber "all" "print" "speaker"
+      hash: true, //# hash: false,
+      //# respondToHashChanges: true,
+      //# history: false,
+      keyboard: true,
+      //#keyboardCondition: null,
+      overview: true,
+      center: true,
+      touch: true,
+      loop: false,
+      rtl: false,
+      //#navigationMode: 'default', linear grid
+      shuffle: false,
+      fragments: true,
+      fragmentInURL: false,
+      embedded: false,
+      help: true,
+      //#pause: true
+      showNotes: false,
+      autoPlayMedia: false, // TODO fix this to a nullable value
+      //#preloadIframes: null. true false
+      //#autoAnimate: true
+      //#autoAnimateMatcher: null,
+      //#autoAnimateEasing: 'ease',
+      //autoAnimateDuration: 1.0,
+      //#autoAnimateUnmatched: true
+      //#autoAnimateStyles: []
+      autoSlide: 0, // TODO fix this to a falseable value
+      autoSlideStoppable: true,
+      autoSlideMethod: '0',
+      defaultTiming: 120,
+      mouseWheel: false,
+      //#previewLinks: false
+      //#postMessage: true, // TODO : this can cause issues with the vscode api ???
+      //#postMessageEvents: false,
+      //#focusBodyOnPageVisibilityChange: true,
+      transition: 'slide',
+      transitionSpeed: 'default',
+      backgroundTransition: 'fade',
+      //#pdfMaxPagesPerSlide: Number.POSITIVE_INFINITY,
+      //#pdfSeparateFragments: true,
+      //#pdfPageHeightOffset: -1,
+      viewDistance: 3,
+      //#mobileViewDistance: 2,
+      display: 'block',
+      //#hideInactiveCursor: true,
+      //#hideCursorTime: 5000
+
+      // Parallax Background
+      parallaxBackgroundImage: '',
+      parallaxBackgroundSize: '',
+      parallaxBackgroundHorizontal: 0,
+      parallaxBackgroundVertical: 0,
+
+      //Presentation Size
+      width: 960,
+			height: 700,
+			margin: 0.04,
+      minScale: 0.2,
+      maxScale: 2,
+      disableLayout: false,
+
+      audio: {
+        prefix: 'audio/', // audio files are stored in the "audio" folder
+        suffix: '.ogg', // audio files have the ".ogg" ending
+        textToSpeechURL: null, // the URL to the text to speech converter
+        defaultNotes: false, // use slide notes as default for the text to speech converter
+        defaultText: false, // use slide text as default for the text to speech converter
+        advance: 0, // advance to next slide after given time in milliseconds after audio has played, use negative value to not advance
+        autoplay: false, // automatically start slideshow
+        defaultDuration: 5, // default duration in seconds if no audio is available
+        defaultAudios: true, // try to play audios with names such as audio/1.2.ogg
+        playerOpacity: 0.05, // opacity value of audio player if unfocused
+        playerStyle: 'position: fixed; bottom: 4px; left: 25%; width: 50%; height:75px; z-index: 33;', // style used for container of audio controls
+        startAtFragment: false, // when moving to a slide, start at the current fragment or at the start of the slide
+      },
+      
+      chalkboard: { // font-awesome.min.css must be available
+        //src: "chalkboard/chalkboard.json",
+        storage: "chalkboard-demo",
+      },
+      
+			customcontrols: {
+					controls: [
+      						{
+						  id: 'toggle-overview',
+						  title: 'Toggle overview (O)',
+						  icon: '<i class="fa fa-th"></i>',
+						  action: 'Reveal.toggleOverview();'
+						}
+						,
+      {
+        icon: '<i class="fa fa-pen-square"></i>',
+        title: 'Toggle chalkboard (B)',
+        action: 'RevealChalkboard.toggleChalkboard();'
+      },
+      {
+        icon: '<i class="fa fa-pen"></i>',
+        title: 'Toggle notes canvas (C)',
+        action: 'RevealChalkboard.toggleNotesCanvas();'
+      }
+      
+				]
+			},
+			chart: {
+					defaults: { 
+						color: 'lightgray', // color of labels
+						scale: { 
+							beginAtZero: true, 
+							ticks: { stepSize: 1 },
+							grid: { color: "lightgray" } , // color of grid lines
+						},
+					},
+					line: { borderColor: [ "rgba(20,220,220,.8)" , "rgba(220,120,120,.8)", "rgba(20,120,220,.8)" ], "borderDash": [ [5,10], [0,0] ] }, 
+					bar: { backgroundColor: [ "rgba(20,220,220,.8)" , "rgba(220,120,120,.8)", "rgba(20,120,220,.8)" ]}, 
+					pie: { backgroundColor: [ ["rgba(0,0,0,.8)" , "rgba(220,20,20,.8)", "rgba(20,220,20,.8)", "rgba(220,220,20,.8)", "rgba(20,20,220,.8)"] ]},
+					radar: { borderColor: [ "rgba(20,220,220,.8)" , "rgba(220,120,120,.8)", "rgba(20,120,220,.8)" ]}, 
+			},
+			math: {
+				mathjax: 'https://cdn.jsdelivr.net/gh/mathjax/mathjax@2.7.8/MathJax.js',
+				config: 'TeX-AMS_HTML-full',
+				// pass other options into `MathJax.Hub.Config()`
+				TeX: { Macros: { RR: "{\\bf R}" } }
+				},
+				anything: [ 
+				{
+		className: "plot",
+		defaults: {width:500, height: 500, grid:true},
+		initialize: (function(container, options){ options.target = "#"+container.id; functionPlot(options) })
+	 },
+	 {
+		className: "chart",  
+		initialize: (function(container, options){ container.chart = new Chart(container.getContext("2d"), options);  })
+	 },
+	 {
+		className: "anything",
+		initialize: (function(container, options){ if (options && options.initialize) { options.initialize(container)} })
+	 },
+					],
+			// Learn about plugins: https://revealjs.com/plugins/
+			plugins: (window.location.search.match(/print-pdf/gi) ? printPlugins : plugins ) 
+		});
+			
+
+
+	    // Change chalkboard theme : 
+		function changeTheme(input) {
+			var config = {};
+			config.theme = input.value;
+			Reveal.getPlugin("RevealChalkboard").configure(config);
+			input.blur();
+		}
+
+		// // Handle the message inside the webview
+        // window.addEventListener('message', event => {
+
+        //     const message = event.data; // The JSON data our extension sent
+
+        //     switch (message.command) {
+        //         case 'refactor':
+        //             Reveal.toggleHelp();
+        //     }
+        // });
+
+		if (window.location.search.match(/print-pdf-now/gi)) {
+      		setTimeout(() => {
+				window.print();
+			  }, 2500);
+			
+    }
+</script>
+
+</body>
+
+</html>
